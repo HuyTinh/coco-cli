@@ -16,14 +16,23 @@ type (
 	errMsg error
 )
 
+type Output struct {
+	Output string
+}
+
+func (o *Output) update(val string) {
+	o.Output = val
+}
+
 type model struct {
 	textInput textinput.Model
 	err       error
+	output    *Output
+	header    string
 }
 
-func initialModel() model {
+func InitialTextInputModel(output *Output, header string) model {
 	ti := textinput.New()
-	ti.Placeholder = "Pikachu"
 	ti.Focus()
 	ti.CharLimit = 156
 	ti.Width = 20
@@ -31,6 +40,8 @@ func initialModel() model {
 	return model{
 		textInput: ti,
 		err:       nil,
+		output:    output,
+		header:    titleStyle.Render(header),
 	}
 }
 
@@ -44,7 +55,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.Type {
-		case tea.KeyEnter, tea.KeyCtrlC, tea.KeyEsc:
+		case tea.KeyEnter:
+			if len(m.textInput.Value()) > 1 {
+				m.output.update(m.textInput.Value())
+				return m, tea.Quit
+			}
+		case tea.KeyCtrlC, tea.KeyEsc:
 			return m, tea.Quit
 		}
 
@@ -60,8 +76,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m model) View() string {
 	return fmt.Sprintf(
-		"What’s your favorite Pokémon?\n\n%s\n\n%s",
+		"%s\n\n%s\n\n",
+		m.header,
 		m.textInput.View(),
-		"(esc to quit)",
-	) + "\n"
+	)
 }
