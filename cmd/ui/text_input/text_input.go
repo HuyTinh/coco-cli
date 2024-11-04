@@ -2,6 +2,7 @@ package textInput
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -9,7 +10,7 @@ import (
 )
 
 var (
-	titleStyle = lipgloss.NewStyle().Background(lipgloss.Color("#01FAC6")).Foreground(lipgloss.Color("#030303")).Bold(true).Padding(0, 1, 0)
+	titleStyle = lipgloss.NewStyle().Background(lipgloss.Color(os.Getenv("CLI_TITLE_COLOR"))).Foreground(lipgloss.Color(os.Getenv("CLI_TEXT_COLOR"))).Bold(true).Padding(0, 1, 0)
 )
 
 type (
@@ -32,7 +33,7 @@ type model struct {
 }
 
 func InitialTextInputModel(output *Output, header string) model {
-	ti := textinput.New()
+	ti := textinput.NewModel()
 	ti.Focus()
 	ti.CharLimit = 156
 	ti.Width = 20

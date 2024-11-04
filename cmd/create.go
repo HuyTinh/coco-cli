@@ -1,10 +1,12 @@
 package cmd
 
 import (
-	textInput "coco-cli/m/cmd/ui/text_input"
+	multiInput "coco-cli/coco/cmd/ui/multi_input"
+	textInput "coco-cli/coco/cmd/ui/text_input"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	_ "github.com/joho/godotenv/autoload"
 	"github.com/spf13/cobra"
 )
 
@@ -24,7 +26,7 @@ type listOptions struct {
 
 type Options struct {
 	ProjectName *textInput.Output
-	ProjectType string
+	ProjectType *multiInput.Selection
 }
 
 var createCmd = &cobra.Command{
@@ -37,7 +39,21 @@ var createCmd = &cobra.Command{
 			ProjectName: &textInput.Output{},
 		}
 
-		tprogram := tea.NewProgram(textInput.InitialTextInputModel(options.ProjectName, "What is the name of your project"))
+		tprogram := tea.NewProgram(textInput.InitialTextInputModel(options.ProjectName, "What is the name of your project?"))
+
+		if _, err := tprogram.Run(); err != nil {
+			cobra.CheckErr(err)
+		}
+
+		listOfStuff := listOptions{
+			options: []string{
+				"Option 1",
+				"Option 2",
+				"Option 3",
+			},
+		}
+
+		tprogram = tea.NewProgram(multiInput.InitialMultiInputModel(listOfStuff.options, options.ProjectType, "Choose your option?"))
 
 		if _, err := tprogram.Run(); err != nil {
 			cobra.CheckErr(err)
