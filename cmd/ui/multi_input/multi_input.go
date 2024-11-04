@@ -2,6 +2,7 @@ package multiInput
 
 import (
 	"fmt"
+	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -9,7 +10,7 @@ import (
 
 var (
 	focusedStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#01FAC6")).Bold(true)
-	titleStyle   = lipgloss.NewStyle().Background(lipgloss.Color("#01FAC6")).Foreground(lipgloss.Color("#030303")).Bold(true).Padding(0, 1, 0)
+	titleStyle   = lipgloss.NewStyle().Background(lipgloss.Color(os.Getenv("CLI_TITLE_COLOR"))).Foreground(lipgloss.Color(os.Getenv("CLI_TEXT_COLOR"))).Bold(true).Padding(0, 1, 0)
 )
 
 type Selection struct {
@@ -65,10 +66,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			} else {
 				m.selected[m.cursor] = struct{}{}
 			}
-		case "y":
-			if len(m.selected) == 1 {
-				return m, tea.Quit
-			}
+			return m, tea.Quit
 		}
 
 	}
@@ -88,12 +86,10 @@ func (m model) View() string {
 		checked := " "
 
 		if _, ok := m.selected[i]; ok {
-			checked = focusedStyle.Render("x")
+			checked = "✔️"
 		}
 
-		s += fmt.Sprintf("%s [%s] %s", cursor, checked, choice)
+		s += fmt.Sprintf("%s [%s ] %s\n", cursor, checked, choice)
 	}
-
-	s += fmt.Sprintf("Press %s to confirm choice.\n\n", focusedStyle.Render("y"))
 	return s
 }
